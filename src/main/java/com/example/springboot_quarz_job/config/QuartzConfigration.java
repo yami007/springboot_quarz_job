@@ -6,16 +6,32 @@ import com.example.springboot_quarz_job.job.ScheduleTask2;
 import org.quartz.Trigger;
 import org.quartz.spi.JobFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.scheduling.quartz.CronTriggerFactoryBean;
 import org.springframework.scheduling.quartz.JobDetailFactoryBean;
 import org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
 
 @Configuration
+@PropertySource(value = "quartz.properties")
 public class QuartzConfigration {
+
+    @Value("${myTrigger_cron}")
+    private String myTriggerCron;
+
+    @Value("${cronJobTrigger_cron}")
+    private String cronJobTriggerCron;
+
+    @Value("${cronJobTrigger2_cron}")
+    private String cronJobTrigger2Cron;
+
     /**
      * attention:
      * Details：配置定时任务1
@@ -43,7 +59,7 @@ public class QuartzConfigration {
     public CronTriggerFactoryBean cronJobTrigger(@Qualifier("scheduleJobBean") MethodInvokingJobDetailFactoryBean scheduleJobBean) {
         CronTriggerFactoryBean tigger = new CronTriggerFactoryBean();
         tigger.setJobDetail(scheduleJobBean.getObject());
-        tigger.setCronExpression("0/2 * * * * ?");// 什么是否触发，Spring Scheduler Cron表达式
+        tigger.setCronExpression(cronJobTriggerCron);// 什么是否触发，Spring Scheduler Cron表达式
         tigger.setName("srd-chhliu");// trigger的name
         return tigger;
     }
@@ -75,7 +91,7 @@ public class QuartzConfigration {
     public CronTriggerFactoryBean cronJobTrigger2(@Qualifier("scheduleJobBean2") MethodInvokingJobDetailFactoryBean scheduleJobBean2) {
         CronTriggerFactoryBean tigger = new CronTriggerFactoryBean();
         tigger.setJobDetail(scheduleJobBean2.getObject());
-        tigger.setCronExpression("0/2 * * * * ?");// 什么是否触发，Spring Scheduler Cron表达式
+        tigger.setCronExpression(cronJobTrigger2Cron);// 什么是否触发，Spring Scheduler Cron表达式
         tigger.setName("srd-chhliu2");// trigger的name
         return tigger;
     }
@@ -91,10 +107,10 @@ public class QuartzConfigration {
     }
 
     @Bean("myTrigger")
-    public CronTriggerFactoryBean myTrigger(@Qualifier("myJobDetail") JobDetailFactoryBean myJobDetail) {
+    public CronTriggerFactoryBean myTrigger(@Qualifier("myJobDetail") JobDetailFactoryBean myJobDetail) throws IOException {
         CronTriggerFactoryBean myTrigger = new CronTriggerFactoryBean();
         myTrigger.setGroup("srd3");
-        myTrigger.setCronExpression("0/2 * * * * ?");
+        myTrigger.setCronExpression(myTriggerCron);
         myTrigger.setJobDetail(myJobDetail.getObject());
         return myTrigger;
     }
